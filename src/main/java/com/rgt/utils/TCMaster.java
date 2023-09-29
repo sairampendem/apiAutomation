@@ -9,6 +9,8 @@ public class TCMaster
 	private String EXPECTED;
 	private String REQUEST_TYPE;
 	private String END_POINT;
+	private String REQUEST_DATA_ELEMENTS;
+	private String REQUEST_DATA_ELEMENTS_VALUES;
 
 
 	public String getTC_ID() {
@@ -76,11 +78,28 @@ public class TCMaster
 	{
 		END_POINT = endPoint;
 	}
+	public String getRequestDataElements()
+	{
+		return REQUEST_DATA_ELEMENTS;
+	}
 	
+	public void  setRequestDataElements(String requestDataElements)
+	{
+		REQUEST_DATA_ELEMENTS = requestDataElements;
+	}
+	
+	public String getRequestDataElementsValues()
+	{
+		return REQUEST_DATA_ELEMENTS_VALUES;
+	}
+	
+	public void  setRequestDataElementsValues(String requestDataElementsValues)
+	{
+		REQUEST_DATA_ELEMENTS_VALUES = requestDataElementsValues;
+	}
 	public String toString() {
 		return "Testdata [TC_ID="+TC_ID+", ToBeExecuted="+ToBeExecuted+", API_NAME="+API_NAME+", DATA_ELEMENTS="+DATA_ELEMENTS+", EXPECTED="+EXPECTED+", REQUEST_TYPE="+REQUEST_TYPE+", END_POINT="+END_POINT+"]";
 
 	}
-
 
 }

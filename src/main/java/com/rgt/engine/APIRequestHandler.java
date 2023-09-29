@@ -52,7 +52,7 @@ public class APIRequestHandler {
 		return tempresponse;
 	}
 
-	public static List<String> postRequest(String endPoint, String playload,String headers) {
+	public static List<String> postRequest(String endPoint, String playload) {
 		List<String> postresponse = new ArrayList<String>();;		
 		try {
 

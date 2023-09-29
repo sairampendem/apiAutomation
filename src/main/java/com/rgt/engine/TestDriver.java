@@ -17,15 +17,14 @@ import com.jayway.jsonpath.JsonPath;
 import com.lowagie.text.DocumentException;
 import com.rgt.utils.CommonUtils;
 import com.rgt.utils.ExcelUtils;
+import com.rgt.utils.ReportUtility;
 
 public class TestDriver {
 
-	//static List<String> apidetails = null;
 	ExtentReports extentreport;
 	ExtentSparkReporter spark;
 	static ExtentTest extentTest;
 
-	APIRequestHandler apidriver;
 	static Object userInput;
 	static Object classofInput;
 
@@ -36,24 +35,13 @@ public class TestDriver {
 	static ExcelUtils excel = new ExcelUtils(SCENARIO_SHEET_PATH);
 	int testCaseCount = excel.getAPIData().size();
 	static Map<String, String> actualDataElementsXpath;
+	
 
-	public void startExecution() throws IOException, DocumentException {
-		extentreport = new ExtentReports();
-		spark = new ExtentSparkReporter(ExtentReport_Path).viewConfigurer().viewOrder().as(new ViewName[] {
-				ViewName.TEST, ViewName.DASHBOARD, ViewName.CATEGORY, ViewName.DEVICE, ViewName.EXCEPTION }).apply();
-		spark.config().setTheme(Theme.STANDARD);
-		spark.config().setDocumentTitle("API Test");
-		spark.config().setReportName("API Test Result");
-		spark.config().setProtocol(Protocol.HTTPS);
-		extentreport.setSystemInfo("username", "Sai Ram");
-		extentreport.attachReporter(spark);
-		extentreport.setSystemInfo("Environment", "QA");
-		extentreport.setSystemInfo("User", "sairamprince33@gmail.com");
-		extentreport.setSystemInfo("OS", System.getProperty("os.name"));
-		extentreport.setSystemInfo("Java Version", System.getProperty("java.version"));
-		apidriver = new APIRequestHandler();
+	public void startExecution() throws IOException, DocumentException 
+	{
+		extentreport = ReportUtility.testReport(ExtentReport_Path);
+		
 		List<String> table = new ArrayList<String>();
-		// added
 		Map<String, String> expectedDataElementsAndValues = null;
 		Map<String, String> actualDataElementsAndXpath = excel.getAPIMappingData();
 		Map<String, String> actualDataElementsAndValues = new LinkedHashMap<String, String>();
@@ -61,14 +49,14 @@ public class TestDriver {
 		List<String> actual = new ArrayList<String>();
 		List<String> expected = new ArrayList<String>();
 		List<String> arrStatus = new ArrayList<String>();
+		List<String> tempStatus = new ArrayList<>();
 
 		System.out.println("Number of TestCases to be Executing = " + testCaseCount);
 
 		for (int j = 0; j < testCaseCount; j++) {
-			// added
-			List<String> apidetails = null  ;
-			System.out.println("Hello");
-			//System.out.println(apidetails.get(1));
+
+			List<String> apidetails = null;
+
 			expectedDataElementsAndValues = CommonUtils.getExpectedDataElementsAndValues(
 					excel.getAPIData().get(j).getdataElements(), excel.getAPIData().get(j).getExpected());
 			table.add("<table border=1>" + "<tr style=color:black>" + "<th>Data Elements</th>"
@@ -77,78 +65,90 @@ public class TestDriver {
 
 			String[] dataElements = excel.getAPIData().get(j).getdataElements().split(";");
 			String[] expdataElementsValues = excel.getAPIData().get(j).getExpected().split(";");
-			
-System.out.println(dataElements.length);
+
 			for (int i = 0; i < dataElements.length; i++) {
 
 				try {
-					switch ((excel.getAPIData().get(j).getAPIName()).trim()) {
+					if (excel.getAPIData().get(j).getrequestType().equalsIgnoreCase("GET")) {
+						switch ((excel.getAPIData().get(j).getAPIName()).trim()) {
 
-					case "POST":
-						apidetails = APIRequestHandler.getRequest(excel.getAPIData().get(j).getendPoint());
-						System.out.println(apidetails.get(1));
-						break;
+						case "PostsGetAPi":
+							apidetails = APIDriver.PostsGetAPI(excel.getAPIData().get(j).getendPoint());
+							break;
 
-					case "POST1":
-						apidetails = APIRequestHandler.getRequest(excel.getAPIData().get(j).getendPoint());
+						case "POST1":
+							apidetails = APIRequestHandler.getRequest(excel.getAPIData().get(j).getendPoint());
 
-						break;
+							break;
 
-					case "COMMENTS":
-						apidetails = APIRequestHandler.getRequest(excel.getAPIData().get(j).getendPoint());
-						System.out.println(apidetails.get(1));
-						break;
+						case "CommentsGetApi":
+							apidetails = APIDriver.CommentsGetAPI(excel.getAPIData().get(j).getendPoint());
+							break;
 
-					case "COMMENT1":
-						apidetails = APIDriver.PostsAPI(excel.getAPIData().get(j).getendPoint(), "Test1", "Test2",
-								"Test3");
-						break;
+						default:
+							System.out.println("API name incorrect");
+						}
+					} else {
+						//String requestValues[] = excel.getAPIData().get(j).getRequestDataElementsValues().split(";");
+						switch ((excel.getAPIData().get(j).getAPIName()).trim()) {
 
-					default:
-						System.out.println("API name incorrect");
+						case "CommentsPostApi":
+							apidetails = APIDriver.PostsAPI(excel.getAPIData().get(j).getendPoint());
+							break;
+
+						default:
+							System.out.println("API name incorrect");
+						}
+
 					}
 
 				} catch (Exception e) {
 					System.out.println(e);
 				}
+
 				for (String element : expectedDataElementsAndValues.keySet()) {
 					actualDataElementsAndValues.put(element,
-						JsonPath.read(apidetails.get(1), actualDataElementsAndXpath.get(element)));
-					actual.add(JsonPath.read(apidetails.get(1), actualDataElementsAndXpath.get(element)));
+							JsonPath.read(apidetails.get(1), actualDataElementsAndXpath.get(element)).toString());
+					actual.add(JsonPath.read(apidetails.get(1), actualDataElementsAndXpath.get(element)).toString());
 					expected.add(expectedDataElementsAndValues.get(element));
-
 				}
 
-				System.out.println(expected.get(i));
-				System.out.println(actual.get(i));
-//				System.out.println(expected.get(i));
-
-				//if (actual.get(i).equalsIgnoreCase(expected.get(i))) {
-				if(actualDataElementsAndValues.get(dataElements[i]).toString().equalsIgnoreCase(expectedDataElementsAndValues.get(dataElements[i]).toString())) {
-					arrStatus.add("Pass");
-					System.out.println(arrStatus.get(i));
+//				if (actualDataElementsAndValues.get(dataElements[i]).toString()
+//						.equalsIgnoreCase(expectedDataElementsAndValues.get(dataElements[i]).toString())) {
+					if (actualDataElementsAndValues.get(dataElements[i]).toString()
+							.equalsIgnoreCase(expectedDataElementsAndValues.get(dataElements[i]).toString())) {
+					
+					System.out.println(actualDataElementsAndValues.get(dataElements[i]).toString());
+					System.out.println(expectedDataElementsAndValues.get(dataElements[i]).toString());
+//					arrStatus.add("Pass");
+//					tempStatus.addAll(arrStatus);
+//					arrStatus.clear();
+//					System.out.println(tempStatus.get(i));
+					table.add("<tr>" + "<td style=color:indigo>" + dataElements[i] + "</td>" + "<td style=color:green>"
+							+ actualDataElementsAndValues.get(dataElements[i]) + "</td>" + "<td style=color:green>"
+							+ expectedDataElementsAndValues.get(dataElements[i]) + "</td>" + "<td style=color:green>"
+							+ "Pass" + "</td></tr>");
 				} else {
-					arrStatus.add("Fail");
-					System.out.println(arrStatus.get(i));
+					System.out.println(actualDataElementsAndValues.get(dataElements[i]).toString());
+					System.out.println(expectedDataElementsAndValues.get(dataElements[i]).toString());
+//					arrStatus.add("Fail");
+//					tempStatus.addAll(arrStatus);
+//					arrStatus.clear();
+//					System.out.println(tempStatus.get(i));
+					table.add("<tr>" + "<td style=color:indigo>" + dataElements[i] + "</td>" + "<td style=color:green>"
+							+ actualDataElementsAndValues.get(dataElements[i]) + "</td>" + "<td style=color:green>"
+							+ expectedDataElementsAndValues.get(dataElements[i]) + "</td>" + "<td style=color:green>"
+							+ "Fail" + "</td></tr>");
+				
 				}
 
-				table.add("<tr>" + "<td style=color:indigo>" + dataElements[i] + "</td>" + "<td style=color:green>"
-						+ actualDataElementsAndValues.get(dataElements[i]) + "</td>" + "<td style=color:green>"
-						+ expectedDataElementsAndValues.get(dataElements[i]) + "</td>" + "<td style=color:green>"
-						+ arrStatus.get(i) + "</td></tr>");
+//				table.add("<tr>" + "<td style=color:indigo>" + dataElements[i] + "</td>" + "<td style=color:green>"
+//						+ actualDataElementsAndValues.get(dataElements[i]) + "</td>" + "<td style=color:green>"
+//						+ expectedDataElementsAndValues.get(dataElements[i]) + "</td>" + "<td style=color:green>"
+//						+ tempStatus.get(i) + "</td></tr>");
 
 			}
 			table.add("</table>");
-
-			// added
-			// for (String element : expectedDataElementsAndValues.keySet()) {
-			// actualDataElementsAndValues.put(element,
-			// JsonPath.read(apidetails.get(1), actualDataElementsAndXpath.get(element)));
-			//
-			// }
-			table.add("</table>");
-//			System.out.println(actualDataElementsAndValues.values());
-//			System.out.println(expectedDataElementsAndValues.values());
 
 			if (actualDataElementsAndValues.values().toString()
 					.contentEquals(expectedDataElementsAndValues.values().toString())) {
@@ -158,8 +158,6 @@ System.out.println(dataElements.length);
 				status = "Fail";
 				actualDataElementsAndValues.values().clear();
 			}
-
-			// System.out.println(status);
 
 			if (status.equalsIgnoreCase("Pass")) {
 				extentTest.info(MarkupHelper.createLabel(
@@ -175,9 +173,6 @@ System.out.println(dataElements.length);
 			}
 
 			table.clear();
-			//apidetails = null;
-			System.out.println("End of for loop J");
-			//System.out.println(apidetails);
 		}
 
 		extentreport.flush();
@@ -202,8 +197,8 @@ System.out.println(dataElements.length);
 			}
 
 		}
-		System.out.println(actualDataElementsAndValues.values());
-		System.out.println(expectedDataElementsAndValues.values());
+//		System.out.println(actualDataElementsAndValues.values());
+//		System.out.println(expectedDataElementsAndValues.values());
 		{
 
 		}

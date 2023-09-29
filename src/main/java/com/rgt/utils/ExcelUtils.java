@@ -40,6 +40,8 @@ public class ExcelUtils
 				data.setExpected(recordset.getField("EXPECTED"));
 				data.setrequestType(recordset.getField("REQUEST_TYPE"));
 				data.setendPoint(recordset.getField("END_POINT"));
+				data.setRequestDataElements(recordset.getField("REQUEST_DATA_ELEMENTS"));
+				data.setRequestDataElementsValues(recordset.getField("REQUEST_DATA_ELEMENTS_VALUES"));
 				listTestCases.add(data);
 //				System.out.println(listTestCases.get(0));
 			}

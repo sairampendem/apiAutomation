@@ -7,23 +7,33 @@ import com.rgt.utils.APIConstants;
 
 public class APIDriver {
 		
-	public static List<String> PostsAPI(String endPoint, String userId, String id, String title)
+//	public static List<String> PostsAPI(String endPoint, String userId, String id, String title)
+//	{
+//		List<String> postsApidetails =APIRequestHandler.postRequest(endPoint, readFileAsString(getPayloadPath())
+//				.replace(APIConstants.USERID, userId)
+//				.replace(APIConstants.ID, id)
+//				.replace(APIConstants.TITLE, title), "");
+//		System.out.println(postsApidetails);
+//		
+//		return postsApidetails;
+//	}
+	public static List<String> PostsAPI(String endPoint)
 	{
-		List<String> postsApidetails =APIRequestHandler.postRequest(endPoint, readFileAsString(getPayloadPath())
-				.replace(APIConstants.USERID, userId)
-				.replace(APIConstants.ID, id)
-				.replace(APIConstants.TITLE, title), "");
+		List<String> postsApidetails =APIRequestHandler.postRequest(endPoint, readFileAsString(getPayloadPath()));
 		System.out.println(postsApidetails);
 		
 		return postsApidetails;
 	}
-	
-//	public static List<String> PostsGetAPI(String endPoint)
-//	{
-//		List<String> postsGetApidetails =APIRequestHandler.getRequest(endPoint);
-//		return postsGetApidetails;
-//	}
-	
+	public static List<String> PostsGetAPI(String endPoint)
+	{
+		List<String> postsGetApidetails =APIRequestHandler.getRequest(endPoint);
+		return postsGetApidetails;
+	}
+	public static List<String> CommentsGetAPI(String endPoint)
+	{
+		List<String> CommentsGetAPI =APIRequestHandler.getRequest(endPoint);
+		return CommentsGetAPI;
+	}
 	public static String getPayloadPath() 
 	{
 		String parentMathod = Thread.currentThread().getStackTrace() [2].getMethodName();
