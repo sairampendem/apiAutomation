@@ -20,7 +20,7 @@ import com.rgt.utils.ExcelUtils;
 
 public class TestDriver {
 
-	static List<String> apidetails = null;
+	//static List<String> apidetails = null;
 	ExtentReports extentreport;
 	ExtentSparkReporter spark;
 	static ExtentTest extentTest;
@@ -66,6 +66,9 @@ public class TestDriver {
 
 		for (int j = 0; j < testCaseCount; j++) {
 			// added
+			List<String> apidetails = null  ;
+			System.out.println("Hello");
+			//System.out.println(apidetails.get(1));
 			expectedDataElementsAndValues = CommonUtils.getExpectedDataElementsAndValues(
 					excel.getAPIData().get(j).getdataElements(), excel.getAPIData().get(j).getExpected());
 			table.add("<table border=1>" + "<tr style=color:black>" + "<th>Data Elements</th>"
@@ -74,15 +77,16 @@ public class TestDriver {
 
 			String[] dataElements = excel.getAPIData().get(j).getdataElements().split(";");
 			String[] expdataElementsValues = excel.getAPIData().get(j).getExpected().split(";");
-
+			
+System.out.println(dataElements.length);
 			for (int i = 0; i < dataElements.length; i++) {
 
 				try {
 					switch ((excel.getAPIData().get(j).getAPIName()).trim()) {
 
 					case "POST":
-						apidetails = APIDriver.PostsGetAPI(excel.getAPIData().get(j).getendPoint());
-						// System.out.println(compareDataElements(apidetails.get(1)));
+						apidetails = APIRequestHandler.getRequest(excel.getAPIData().get(j).getendPoint());
+						System.out.println(apidetails.get(1));
 						break;
 
 					case "POST1":
@@ -92,6 +96,7 @@ public class TestDriver {
 
 					case "COMMENTS":
 						apidetails = APIRequestHandler.getRequest(excel.getAPIData().get(j).getendPoint());
+						System.out.println(apidetails.get(1));
 						break;
 
 					case "COMMENT1":
@@ -108,7 +113,7 @@ public class TestDriver {
 				}
 				for (String element : expectedDataElementsAndValues.keySet()) {
 					actualDataElementsAndValues.put(element,
-							JsonPath.read(apidetails.get(1), actualDataElementsAndXpath.get(element)));
+						JsonPath.read(apidetails.get(1), actualDataElementsAndXpath.get(element)));
 					actual.add(JsonPath.read(apidetails.get(1), actualDataElementsAndXpath.get(element)));
 					expected.add(expectedDataElementsAndValues.get(element));
 
@@ -119,7 +124,7 @@ public class TestDriver {
 //				System.out.println(expected.get(i));
 
 				//if (actual.get(i).equalsIgnoreCase(expected.get(i))) {
-					if(actualDataElementsAndValues.get(dataElements[i]).toString().equalsIgnoreCase(expectedDataElementsAndValues.get(dataElements[i]).toString())) {
+				if(actualDataElementsAndValues.get(dataElements[i]).toString().equalsIgnoreCase(expectedDataElementsAndValues.get(dataElements[i]).toString())) {
 					arrStatus.add("Pass");
 					System.out.println(arrStatus.get(i));
 				} else {
@@ -170,6 +175,9 @@ public class TestDriver {
 			}
 
 			table.clear();
+			//apidetails = null;
+			System.out.println("End of for loop J");
+			//System.out.println(apidetails);
 		}
 
 		extentreport.flush();

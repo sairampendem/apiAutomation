@@ -14,7 +14,7 @@ import java.util.Map;
 import com.rgt.utils.APIConstants;
 
 public class APIRequestHandler {
-	static StringBuilder responseContent = new StringBuilder();
+	
 	
 	static HttpURLConnection connection;
 	static URL url;
@@ -22,7 +22,9 @@ public class APIRequestHandler {
 	public static String actualString = null;
 
 	public static List<String> getRequest(String enPoint) {
-		List<String> getresponse = new ArrayList<String>();;
+		List<String> getresponse = new ArrayList<String>();
+		StringBuilder responseContent = new StringBuilder();
+		List<String> tempresponse = new ArrayList<>();
 		try {
 			url = new URL(enPoint);
 			// Open a connection to the URL
@@ -38,24 +40,16 @@ public class APIRequestHandler {
 			while ((line = reader.readLine()) != null) {
 				responseContent.append(line);
 			}
-			String strChar = responseContent.toString().substring(0, 1);
-			String endChar = responseContent.toString().substring(responseContent.toString().length() - 1,
-					responseContent.toString().length());
-			if (strChar.contentEquals("[") && endChar.contentEquals("]")) {
-				actualString = responseContent.toString().substring(1, responseContent.toString().length() - 1);
-			} else {
-				actualString = responseContent.toString();
-			}
-			
-			getresponse.add(Integer.toString(responseCode));
-			getresponse.add(actualString.toString());
+			getresponse.add(Integer.toString(connection.getResponseCode()));
+			getresponse.add(responseContent.toString());
 			reader.close();
 			connection.disconnect();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	
-		return getresponse;
+		tempresponse.addAll(getresponse);
+		getresponse.clear();
+		return tempresponse;
 	}
 
 	public static List<String> postRequest(String endPoint, String playload,String headers) {
