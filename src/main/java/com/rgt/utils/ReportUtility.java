@@ -12,7 +12,7 @@ public class ReportUtility
 	static ExtentReports extentreport;
 	static ExtentSparkReporter spark;
 	static ExtentTest extentTest;
-	
+
 	public static ExtentReports testReport(String ExtentReport_Path)
 	{
 		extentreport = new ExtentReports();
@@ -29,9 +29,9 @@ public class ReportUtility
 		extentreport.setSystemInfo("Emil ID", "hari.parvatam@ratnaglobaltech.com");
 		extentreport.setSystemInfo("OS", System.getProperty("os.name"));
 		extentreport.setSystemInfo("Java Version", System.getProperty("java.version"));
-		
+
 		return extentreport;
 	}
-	
+
 
 }

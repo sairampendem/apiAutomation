@@ -11,6 +11,7 @@ public class TCMaster
 	private String END_POINT;
 	private String REQUEST_DATA_ELEMENTS;
 	private String REQUEST_DATA_ELEMENTS_VALUES;
+	private String SERVICE_TYPE;
 
 
 	public String getTC_ID() {
@@ -91,6 +92,15 @@ public class TCMaster
 	public String getRequestDataElementsValues()
 	{
 		return REQUEST_DATA_ELEMENTS_VALUES;
+	}
+	
+	public void  setServiceType(String serviceType)
+	{
+		SERVICE_TYPE = serviceType;
+	}
+	public String getServiceType()
+	{
+		return SERVICE_TYPE;
 	}
 	
 	public void  setRequestDataElementsValues(String requestDataElementsValues)

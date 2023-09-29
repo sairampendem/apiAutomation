@@ -1,10 +1,16 @@
 package com.rgt.engine;
 
 import java.io.IOException;
+import java.lang.System.Logger;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.openqa.selenium.devtools.v113.console.model.ConsoleMessage.Level;
+import org.slf4j.*;
+import org.testng.Reporter;
+
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.markuputils.ExtentColor;
@@ -19,12 +25,13 @@ import com.rgt.utils.CommonUtils;
 import com.rgt.utils.ExcelUtils;
 import com.rgt.utils.ReportUtility;
 
+import lombok.var;
+
 public class TestDriver {
 
 	ExtentReports extentreport;
 	ExtentSparkReporter spark;
 	static ExtentTest extentTest;
-
 	static Object userInput;
 	static Object classofInput;
 
@@ -35,12 +42,9 @@ public class TestDriver {
 	static ExcelUtils excel = new ExcelUtils(SCENARIO_SHEET_PATH);
 	int testCaseCount = excel.getAPIData().size();
 	static Map<String, String> actualDataElementsXpath;
-	
 
-	public void startExecution() throws IOException, DocumentException 
-	{
+	public void startExecution() throws IOException, DocumentException {
 		extentreport = ReportUtility.testReport(ExtentReport_Path);
-		
 		List<String> table = new ArrayList<String>();
 		Map<String, String> expectedDataElementsAndValues = null;
 		Map<String, String> actualDataElementsAndXpath = excel.getAPIMappingData();
@@ -48,8 +52,6 @@ public class TestDriver {
 		String status = "";
 		List<String> actual = new ArrayList<String>();
 		List<String> expected = new ArrayList<String>();
-		List<String> arrStatus = new ArrayList<String>();
-		List<String> tempStatus = new ArrayList<>();
 
 		System.out.println("Number of TestCases to be Executing = " + testCaseCount);
 
@@ -89,11 +91,15 @@ public class TestDriver {
 							System.out.println("API name incorrect");
 						}
 					} else {
-						//String requestValues[] = excel.getAPIData().get(j).getRequestDataElementsValues().split(";");
+						// String requestValues[] =
+						// excel.getAPIData().get(j).getRequestDataElementsValues().split(";");
 						switch ((excel.getAPIData().get(j).getAPIName()).trim()) {
 
 						case "CommentsPostApi":
 							apidetails = APIDriver.PostsAPI(excel.getAPIData().get(j).getendPoint());
+							break;
+						case "SoapResponseTest":
+							apidetails = APIDriver.getXmlResponse(excel.getAPIData().get(j).getendPoint());
 							break;
 
 						default:
@@ -107,23 +113,27 @@ public class TestDriver {
 				}
 
 				for (String element : expectedDataElementsAndValues.keySet()) {
+					if(excel.getAPIData().get(j).getServiceType().equalsIgnoreCase("JSON")) {
 					actualDataElementsAndValues.put(element,
 							JsonPath.read(apidetails.get(1), actualDataElementsAndXpath.get(element)).toString());
 					actual.add(JsonPath.read(apidetails.get(1), actualDataElementsAndXpath.get(element)).toString());
 					expected.add(expectedDataElementsAndValues.get(element));
+					}else {
+						actualDataElementsAndValues.put(element,
+								APIDriver.getXMLResponeValueByXpath(apidetails.get(1), actualDataElementsAndXpath.get(element)).toString());
+						actual.add(APIDriver.getXMLResponeValueByXpath(apidetails.get(1), actualDataElementsAndXpath.get(element)).toString());
+						expected.add(expectedDataElementsAndValues.get(element));
+					}
 				}
+				if (actualDataElementsAndValues.get(dataElements[i]).toString()
+						.equalsIgnoreCase(expectedDataElementsAndValues.get(dataElements[i]).toString())) {
 
-//				if (actualDataElementsAndValues.get(dataElements[i]).toString()
-//						.equalsIgnoreCase(expectedDataElementsAndValues.get(dataElements[i]).toString())) {
-					if (actualDataElementsAndValues.get(dataElements[i]).toString()
-							.equalsIgnoreCase(expectedDataElementsAndValues.get(dataElements[i]).toString())) {
-					
-					System.out.println(actualDataElementsAndValues.get(dataElements[i]).toString());
-					System.out.println(expectedDataElementsAndValues.get(dataElements[i]).toString());
-//					arrStatus.add("Pass");
-//					tempStatus.addAll(arrStatus);
-//					arrStatus.clear();
-//					System.out.println(tempStatus.get(i));
+//					System.out.println(actualDataElementsAndValues.get(dataElements[i]).toString());
+//					System.out.println(expectedDataElementsAndValues.get(dataElements[i]).toString());
+
+//					Logger log = System.getLogger(status);
+//					log.log(null, status);
+//					Reporter.log("Expected Value : ");
 					table.add("<tr>" + "<td style=color:indigo>" + dataElements[i] + "</td>" + "<td style=color:green>"
 							+ actualDataElementsAndValues.get(dataElements[i]) + "</td>" + "<td style=color:green>"
 							+ expectedDataElementsAndValues.get(dataElements[i]) + "</td>" + "<td style=color:green>"
@@ -131,22 +141,13 @@ public class TestDriver {
 				} else {
 					System.out.println(actualDataElementsAndValues.get(dataElements[i]).toString());
 					System.out.println(expectedDataElementsAndValues.get(dataElements[i]).toString());
-//					arrStatus.add("Fail");
-//					tempStatus.addAll(arrStatus);
-//					arrStatus.clear();
-//					System.out.println(tempStatus.get(i));
+
 					table.add("<tr>" + "<td style=color:indigo>" + dataElements[i] + "</td>" + "<td style=color:green>"
 							+ actualDataElementsAndValues.get(dataElements[i]) + "</td>" + "<td style=color:green>"
 							+ expectedDataElementsAndValues.get(dataElements[i]) + "</td>" + "<td style=color:green>"
 							+ "Fail" + "</td></tr>");
-				
+
 				}
-
-//				table.add("<tr>" + "<td style=color:indigo>" + dataElements[i] + "</td>" + "<td style=color:green>"
-//						+ actualDataElementsAndValues.get(dataElements[i]) + "</td>" + "<td style=color:green>"
-//						+ expectedDataElementsAndValues.get(dataElements[i]) + "</td>" + "<td style=color:green>"
-//						+ tempStatus.get(i) + "</td></tr>");
-
 			}
 			table.add("</table>");
 

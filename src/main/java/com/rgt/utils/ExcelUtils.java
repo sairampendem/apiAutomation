@@ -14,7 +14,8 @@ public class ExcelUtils
 	protected Fillo fillo;
 	protected Connection connection;
 
-	public ExcelUtils(String excelpath) {
+	public ExcelUtils(String excelpath) 
+	{
 		try { 
 			fillo = new Fillo();
 			connection = fillo.getConnection(excelpath);
@@ -22,7 +23,7 @@ public class ExcelUtils
 			e.printStackTrace();
 		}
 	}
-	
+
 	public List<TCMaster> getAPIData()
 	{
 		List<TCMaster> listTestCases = new ArrayList<TCMaster>();
@@ -31,7 +32,6 @@ public class ExcelUtils
 			Recordset recordset = connection.executeQuery(selectQuery);
 
 			while(recordset.next()) {
-
 				TCMaster data = new TCMaster();
 				data.setTC_ID(recordset.getField("TC_ID"));
 				data.setAPIName(recordset.getField("API_NAME"));
@@ -42,19 +42,18 @@ public class ExcelUtils
 				data.setendPoint(recordset.getField("END_POINT"));
 				data.setRequestDataElements(recordset.getField("REQUEST_DATA_ELEMENTS"));
 				data.setRequestDataElementsValues(recordset.getField("REQUEST_DATA_ELEMENTS_VALUES"));
+				data.setServiceType(recordset.getField("SERVICE_TYPE"));
 				listTestCases.add(data);
-//				System.out.println(listTestCases.get(0));
 			}
 		}
-
 		catch (Exception e) {
 			e.printStackTrace();
 		}
 		return listTestCases;
 	}
-	
-	
-	public List<TestData> getAPIMapping(){
+
+	public List<TestData> getAPIMapping()
+	{
 		List<TestData> listTestCaseDetails = new ArrayList<TestData>();
 		try {
 			String selectQuery = "select * from Mapping";
@@ -64,9 +63,8 @@ public class ExcelUtils
 				TestData data = new TestData();
 				data.setdataElements(recordset.getField("DATA_ELEMENTS"));
 				data.setxpath(recordset.getField("XPATH"));
-				
+
 				listTestCaseDetails.add(data);
-//				System.out.println(listTestCaseDetails);
 			}
 
 		} catch (Exception e) {
@@ -74,8 +72,9 @@ public class ExcelUtils
 		}
 		return listTestCaseDetails;
 	}
-	
-	public Map<String,String> getAPIMappingData(){
+
+	public Map<String,String> getAPIMappingData()
+	{
 		Map<String,String> listTestCaseDetails = new LinkedHashMap<String,String>();
 		try {
 			String selectQuery = "select * from Mapping";
@@ -83,17 +82,15 @@ public class ExcelUtils
 
 			while(recordset.next()) {
 				listTestCaseDetails.put(recordset.getField("DATA_ELEMENTS"), recordset.getField("XPATH"));
-				//System.out.println(listTestCaseDetails);
 			}
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return listTestCaseDetails;
 	}
-	
-	
+
+
 
 
 

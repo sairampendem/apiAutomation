@@ -13,15 +13,15 @@ import java.util.Map;
 
 import com.rgt.utils.APIConstants;
 
-public class APIRequestHandler {
-	
-	
+public class APIRequestHandler 
+{
 	static HttpURLConnection connection;
 	static URL url;
 	static int responseCode;
 	public static String actualString = null;
 
-	public static List<String> getRequest(String enPoint) {
+	public static List<String> getRequest(String enPoint) 
+	{
 		List<String> getresponse = new ArrayList<String>();
 		StringBuilder responseContent = new StringBuilder();
 		List<String> tempresponse = new ArrayList<>();
@@ -52,8 +52,9 @@ public class APIRequestHandler {
 		return tempresponse;
 	}
 
-	public static List<String> postRequest(String endPoint, String playload) {
-		List<String> postresponse = new ArrayList<String>();;		
+	public static List<String> postRequest(String endPoint, String playload) 
+	{
+		List<String> postresponse = new ArrayList<String>();	
 		try {
 
 			// Create a URL object
@@ -90,4 +91,66 @@ public class APIRequestHandler {
 		}
 		return postresponse;
 	}
+	public static List<String> soapRequest(String endPoint,String playload) {
+		List<String> soapresponse = new ArrayList<String>();	
+		List<String> tempsoapresponse = new ArrayList<String>();
+		StringBuffer response = new StringBuffer();
+		try {
+			 String url = "https://www.crcind.com/csp/samples/SOAP.Demo.cls?soap_method=FindPerson&id=1";
+			 URL obj = new URL(endPoint);
+			 connection = (HttpURLConnection) obj.openConnection();
+			 connection.setRequestMethod("POST");
+			 connection.setRequestProperty("Content-Type","application/xml; charset=utf-8");
+			 String countryCode="Canada";
+			 String xml = "<SOAP-ENV:Envelope xmlns:SOAP-ENV=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:s=\"http://www.w3.org/2001/XMLSchema\">\r\n"
+			 		+ "<SOAP-ENV:Body>\r\n"
+			 		+ "<FindPersonResponse xmlns=\"http://tempuri.org\">\r\n"
+			 		+ "<FindPersonResult>\r\n"
+			 		+ "<Name>Newton,Dave R.</Name>\r\n"
+			 		+ "<SSN>384-10-6538</SSN>\r\n"
+			 		+ "<DOB>2000-03-20</DOB>\r\n"
+			 		+ "<Home>\r\n"
+			 		+ "<Street>6977 First Street</Street>\r\n"
+			 		+ "<City>Pueblo</City>\r\n"
+			 		+ "<State>AK</State>\r\n"
+			 		+ "<Zip>63163</Zip>\r\n"
+			 		+ "</Home>\r\n"
+			 		+ "<Office>\r\n"
+			 		+ "<Street>9984 Second Blvd</Street>\r\n"
+			 		+ "<City>Washington</City>\r\n"
+			 		+ "<State>MN</State>\r\n"
+			 		+ "<Zip>42829</Zip>\r\n"
+			 		+ "</Office>\r\n"
+			 		+ "<FavoriteColors>\r\n"
+			 		+ "<FavoriteColorsItem>Red</FavoriteColorsItem>\r\n"
+			 		+ "</FavoriteColors>\r\n"
+			 		+ "<Age>23</Age>\r\n"
+			 		+ "</FindPersonResult>\r\n"
+			 		+ "</FindPersonResponse>\r\n"
+			 		+ "</SOAP-ENV:Body>\r\n"
+			 		+ "</SOAP-ENV:Envelope>";
+			 connection.setDoOutput(true);
+			 DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
+			 wr.writeBytes(playload);
+			 wr.flush();
+			 wr.close();
+			 soapresponse.add(Integer.toString(connection.getResponseCode()));
+			 BufferedReader in = new BufferedReader(new InputStreamReader(
+					 connection.getInputStream()));
+			 String inputLine;
+			 
+			 while ((inputLine = in.readLine()) != null) {
+			 response.append(inputLine);
+			 
+			 }
+			 in.close();
+			 soapresponse.add(response.toString());
+			 tempsoapresponse.addAll(soapresponse);
+			 soapresponse.clear();
+			 } catch (Exception e) {
+			 System.out.println(e);
+			 }
+		return tempsoapresponse;
+	}
+	
 }
