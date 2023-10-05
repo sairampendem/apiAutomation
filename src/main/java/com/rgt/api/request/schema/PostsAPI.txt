@@ -1,0 +1,26 @@
+{
+   "$schema": "http://json-schema.org/draft-07/schema#",
+   "title": "Youtube Channel",
+   "description": "Youtube Channel for software development training",
+   "type": "object",
+	
+   "properties": {
+	
+      "userId": {
+         "description": "The unique identifier for a product",
+         "type": "string"
+      },
+		
+      "title": {
+         "description": "Name of the the channle",
+         "type": "string"
+      },
+		
+      "body": {
+         "description": "Name of the the channle",
+         "type": "string"
+      }
+   },
+	
+   "required": ["userId", "title", "body"]
+}

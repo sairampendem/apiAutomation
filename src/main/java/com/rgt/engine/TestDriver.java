@@ -2,6 +2,7 @@ package com.rgt.engine;
 
 import java.io.IOException;
 import java.lang.System.Logger;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.testng.Reporter;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.markuputils.CodeLanguage;
 import com.aventstack.extentreports.markuputils.ExtentColor;
 import com.aventstack.extentreports.markuputils.MarkupHelper;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
@@ -91,15 +93,16 @@ public class TestDriver {
 							System.out.println("API name incorrect");
 						}
 					} else {
-						// String requestValues[] =
-						// excel.getAPIData().get(j).getRequestDataElementsValues().split(";");
+
 						switch ((excel.getAPIData().get(j).getAPIName()).trim()) {
 
 						case "CommentsPostApi":
-							apidetails = APIDriver.PostsAPI(excel.getAPIData().get(j).getendPoint());
+							apidetails = APIDriver.PostsAPI(excel.getAPIData().get(j).getendPoint(),
+									excel.getAPIData().get(j).getServiceType());
 							break;
 						case "SoapResponseTest":
-							apidetails = APIDriver.getXmlResponse(excel.getAPIData().get(j).getendPoint());
+							apidetails = APIDriver.getXmlResponse(excel.getAPIData().get(j).getendPoint(),
+									excel.getAPIData().get(j).getServiceType());
 							break;
 
 						default:
@@ -113,27 +116,41 @@ public class TestDriver {
 				}
 
 				for (String element : expectedDataElementsAndValues.keySet()) {
-					if(excel.getAPIData().get(j).getServiceType().equalsIgnoreCase("JSON")) {
-					actualDataElementsAndValues.put(element,
-							JsonPath.read(apidetails.get(1), actualDataElementsAndXpath.get(element)).toString());
-					actual.add(JsonPath.read(apidetails.get(1), actualDataElementsAndXpath.get(element)).toString());
-					expected.add(expectedDataElementsAndValues.get(element));
-					}else {
-						actualDataElementsAndValues.put(element,
-								APIDriver.getXMLResponeValueByXpath(apidetails.get(1), actualDataElementsAndXpath.get(element)).toString());
-						actual.add(APIDriver.getXMLResponeValueByXpath(apidetails.get(1), actualDataElementsAndXpath.get(element)).toString());
-						expected.add(expectedDataElementsAndValues.get(element));
+					if (excel.getAPIData().get(j).getServiceType().equalsIgnoreCase("JSON")) {
+						if (excel.getAPIData().get(j).getrequestType().equalsIgnoreCase("GET")) {
+							actualDataElementsAndValues.put(element, JsonPath
+									.read(apidetails.get(1), actualDataElementsAndXpath.get(element)).toString());
+							actual.add(JsonPath.read(apidetails.get(1), actualDataElementsAndXpath.get(element))
+									.toString());
+							expected.add(expectedDataElementsAndValues.get(element));
+						} else {
+							actualDataElementsAndValues.put(element, JsonPath
+									.read(apidetails.get(2), actualDataElementsAndXpath.get(element)).toString());
+							actual.add(JsonPath.read(apidetails.get(2), actualDataElementsAndXpath.get(element))
+									.toString());
+							expected.add(expectedDataElementsAndValues.get(element));
+						}
+					} else {
+						if (excel.getAPIData().get(j).getrequestType().equalsIgnoreCase("GET")) {
+							actualDataElementsAndValues.put(element,
+									APIDriver.getXMLResponeValueByXpath(apidetails.get(1),
+											actualDataElementsAndXpath.get(element)).toString());
+							actual.add(APIDriver.getXMLResponeValueByXpath(apidetails.get(1),
+									actualDataElementsAndXpath.get(element)).toString());
+							expected.add(expectedDataElementsAndValues.get(element));
+						} else {
+							actualDataElementsAndValues.put(element,
+									APIDriver.getXMLResponeValueByXpath(apidetails.get(1),
+											actualDataElementsAndXpath.get(element)).toString());
+							actual.add(APIDriver.getXMLResponeValueByXpath(apidetails.get(1),
+									actualDataElementsAndXpath.get(element)).toString());
+							expected.add(expectedDataElementsAndValues.get(element));
+						}
 					}
 				}
 				if (actualDataElementsAndValues.get(dataElements[i]).toString()
 						.equalsIgnoreCase(expectedDataElementsAndValues.get(dataElements[i]).toString())) {
 
-//					System.out.println(actualDataElementsAndValues.get(dataElements[i]).toString());
-//					System.out.println(expectedDataElementsAndValues.get(dataElements[i]).toString());
-
-//					Logger log = System.getLogger(status);
-//					log.log(null, status);
-//					Reporter.log("Expected Value : ");
 					table.add("<tr>" + "<td style=color:indigo>" + dataElements[i] + "</td>" + "<td style=color:green>"
 							+ actualDataElementsAndValues.get(dataElements[i]) + "</td>" + "<td style=color:green>"
 							+ expectedDataElementsAndValues.get(dataElements[i]) + "</td>" + "<td style=color:green>"
@@ -161,16 +178,53 @@ public class TestDriver {
 			}
 
 			if (status.equalsIgnoreCase("Pass")) {
-				extentTest.info(MarkupHelper.createLabel(
-						"API validation details || " + "Status Code : " + apidetails.get(0), ExtentColor.GREEN));
-				extentTest.pass(
-						MarkupHelper.createLabel(table.toString().substring(1, table.toString().length() - 1), null));
+				if (excel.getAPIData().get(j).getrequestType().equalsIgnoreCase("GET")) {
+
+					extentTest.info(MarkupHelper.createLabel(
+							"API data elements validation details || " + "Status Code : " + apidetails.get(0),
+							ExtentColor.GREEN));
+					extentTest
+							.info(MarkupHelper.createLabel(excel.getAPIData().get(j).getendPoint(), ExtentColor.AMBER));
+					extentTest.pass(MarkupHelper
+							.createLabel(table.toString().substring(1, table.toString().length() - 1), null));
+				} else if(excel.getAPIData().get(j).getServiceType().equalsIgnoreCase("SOAP")){
+					extentTest.info(MarkupHelper.createLabel(
+							"API data elements validation pass, please see details below || " + "Status Code : " + apidetails.get(0),
+							ExtentColor.GREEN));
+					extentTest
+							.info(MarkupHelper.createLabel(excel.getAPIData().get(j).getendPoint(), ExtentColor.AMBER));
+					extentTest.pass(MarkupHelper
+							.createLabel(table.toString().substring(1, table.toString().length() - 1), null));
+				}else {
+					extentTest.info(MarkupHelper.createLabel(apidetails.get(0), ExtentColor.GREEN));
+					extentTest.info(MarkupHelper.createLabel(
+							"API data elements validation details || " + "Status Code : " + apidetails.get(1),
+							ExtentColor.GREEN));
+					extentTest
+							.info(MarkupHelper.createLabel(excel.getAPIData().get(j).getendPoint(), ExtentColor.AMBER));
+					extentTest.pass(MarkupHelper
+							.createLabel(table.toString().substring(1, table.toString().length() - 1), null));
+				}
 			} else {
-				extentTest.info(MarkupHelper.createLabel(
-						"API validation fail please verify below details || " + "Status Code : " + apidetails.get(0),
-						ExtentColor.RED));
+				if (excel.getAPIData().get(j).getrequestType().equalsIgnoreCase("GET")) {
+				
+				extentTest.info(
+						MarkupHelper.createLabel("API data elements validation fail, please see below details || "
+								+ "Status Code : " + apidetails.get(0), ExtentColor.RED));
+				extentTest.info(MarkupHelper.createLabel(excel.getAPIData().get(j).getendPoint(), ExtentColor.AMBER));
+				extentTest.info(MarkupHelper.createCodeBlock(apidetails.get(1), CodeLanguage.JSON));
 				extentTest.fail(
 						MarkupHelper.createLabel(table.toString().substring(1, table.toString().length() - 1), null));
+				}else {
+					extentTest.info(MarkupHelper.createLabel(apidetails.get(0), ExtentColor.RED));
+					extentTest.info(
+							MarkupHelper.createLabel("API data elements validation fail please verify below details || "
+									+ "Status Code : " + apidetails.get(1), ExtentColor.RED));
+					extentTest.info(MarkupHelper.createLabel(excel.getAPIData().get(j).getendPoint(), ExtentColor.AMBER));
+					extentTest.info(MarkupHelper.createCodeBlock(apidetails.get(2), CodeLanguage.JSON));
+					extentTest.fail(
+							MarkupHelper.createLabel(table.toString().substring(1, table.toString().length() - 1), null));
+				}
 			}
 
 			table.clear();

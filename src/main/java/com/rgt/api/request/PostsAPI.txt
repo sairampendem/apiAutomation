@@ -1,6 +1,0 @@
-{
-    "userId": "rgt",
-    "id": "LMC0074",
-    "title": "Automation Engineer",
-    "body": "test body"
-  }

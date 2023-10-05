@@ -16,7 +16,11 @@ import com.rgt.utils.TestData;
 
 public class demoAPI 
 {
-	
+	public static void PostsAPI() {
+		System.out.println();
+		Boolean b = APIDriver.validateJsonSchema(APIDriver.getSchemaPath(), APIDriver.getPayloadPath("JSON"));
+		System.out.println(b);
+	}
 	 @SuppressWarnings("unlikely-arg-type")
 	public static void main(String args[]) throws MalformedURLException
 	 {
@@ -28,8 +32,12 @@ public class demoAPI
 //		 System.out.println(s);
 //		}
 		//System.out.println( m.get(excelutils.getAPIData().get(0).getdataElements()));
-		System.out.println();
-		//TestDriver.tableCreation();
+//		System.out.println();
+//		//TestDriver.tableCreation();
+//		APIDriver ad = new APIDriver();
+//		Boolean b = APIDriver.validateJsonSchema(APIDriver.getSchemaPath(), APIDriver.getPayloadPath("JSON"));
+//		System.out.println(b);
+		 PostsAPI();
 
 	 }
 
